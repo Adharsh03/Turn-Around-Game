@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turn-Based Game</title>
+    <style>
+        #board {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-template-rows: repeat(5, 50px);
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            text-align: center;
+            line-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Turn-Based Game</h1>
+    <div id="board"></div>
+    <h2 id="turn"></h2>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const turnElement = document.getElementById('turn');
+
+        // WebSocket connection
+        const ws = new WebSocket('ws://' + window.location.host);
+
+        let playerId;
+        let gameState;
+
+        // Initialize board
+        function initializeBoard() {
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${i}-${j}`;
+                    boardElement.appendChild(cell);
+                }
+            }
+        }
+
+        // Update board UI based on game state
+        function renderGameState() {
+            gameState.grid.forEach((row, i) => {
+                row.forEach((cell, j) => {
+                    const cellElement = document.getElementById(`cell-${i}-${j}`);
+                    cellElement.textContent = cell ? `${cell}` : '';
+                });
+            });
+
+            turnElement.textContent = `Current turn: ${gameState.turn}`;
+        }
+
+        // Handle incoming WebSocket messages
+        ws.onmessage = (message) => {
+            const data = JSON.parse(message.data);
+
+            if (data.type === 'init') {
+                playerId = data.playerId;
+                gameState = data.gameState;
+                initializeBoard();
+                renderGameState();
+            } else if (data.type === 'update') {
+                gameState = data.gameState;
+                renderGameState();
+            } else if (data.type === 'invalid') {
+                alert(data.message);
+            }
+        };
+
+        // Add event listeners for clicks on cells (move handling)
+        boardElement.addEventListener('click', (event) => {
+            if (!event.target.classList.contains('cell')) return;
+            const [_, x, y] = event.target.id.split('-');
+
+            // Send move to server
+            ws.send(JSON.stringify({
+                character: 'P1', // Example character
+                move: [parseInt(x), parseInt(y)] // Example move, convert strings to integers
+            }));
+        });
+    </script>
+</body>
+</html>
