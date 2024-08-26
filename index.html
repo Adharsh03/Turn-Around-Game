@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turn-Based Game</title>
     <style>
-        /* General layout */
         body {
             margin: 0;
             padding: 0;
@@ -41,7 +40,6 @@
             color: #03DAC6;
         }
 
-        /* Game board styles */
         #board {
             display: grid;
             grid-template-columns: repeat(5, 60px);
@@ -76,7 +74,6 @@
             transform: scale(1.05);
         }
 
-        /* Instruction styles */
         #instructions-tab {
             margin-top: 20px;
         }
@@ -107,7 +104,6 @@
             background-color: #A55DFB;
         }
 
-        /* Responsive design */
         @media (max-width: 400px) {
             .container {
                 width: 90%;
@@ -140,7 +136,6 @@
     <div class="container">
         <h1>Turn-Based Game</h1>
 
-        <!-- Instruction Tab -->
         <div id="instructions-tab">
             <button class="tab-button" onclick="toggleInstructions()">Instructions</button>
             <div id="instructions-content">
@@ -156,10 +151,8 @@
             </div>
         </div>
 
-        <!-- Game Board -->
         <div id="board"></div>
 
-        <!-- Turn Indicator -->
         <h2 id="turn"></h2>
     </div>
 
@@ -168,13 +161,11 @@
         const turnElement = document.getElementById('turn');
         const instructionsContent = document.getElementById('instructions-content');
 
-        // WebSocket connection
         const ws = new WebSocket('ws://' + window.location.host);
 
         let playerId;
         let gameState;
 
-        // Initialize board
         function initializeBoard() {
             for (let i = 0; i < 5; i++) {
                 for (let j = 0; j < 5; j++) {
@@ -186,7 +177,6 @@
             }
         }
 
-        // Update board UI based on game state
         function renderGameState() {
             gameState.grid.forEach((row, i) => {
                 row.forEach((cell, j) => {
@@ -198,7 +188,6 @@
             turnElement.textContent = `Current turn: ${gameState.turn}`;
         }
 
-        // Handle incoming WebSocket messages
         ws.onmessage = (message) => {
             const data = JSON.parse(message.data);
 
@@ -215,19 +204,17 @@
             }
         };
 
-        // Add event listeners for clicks on cells (move handling)
         boardElement.addEventListener('click', (event) => {
             if (!event.target.classList.contains('cell')) return;
             const [_, x, y] = event.target.id.split('-');
 
-            // Send move to server
             ws.send(JSON.stringify({
-                character: playerId, // Player's ID (A or B)
-                move: [parseInt(x), parseInt(y)] // Example move, convert strings to integers
+                character: playerId, 
+                move: [parseInt(x), parseInt(y)] 
             }));
         });
 
-        // Toggle Instructions tab
+ 
         function toggleInstructions() {
             if (instructionsContent.style.display === "none" || instructionsContent.style.display === "") {
                 instructionsContent.style.display = "block";

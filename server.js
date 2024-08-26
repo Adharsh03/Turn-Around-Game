@@ -3,34 +3,27 @@ const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
 
-// Initialize express app
 const app = express();
 
-// Serve static files from the public folder
 app.use(express.static(path.join(__dirname, "index.html")));
 
-// Create an HTTP server and wrap it with WebSocket
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Game state
 let players = {};
 let gameState = createInitialGameState();
 
-// Create the initial game state with a 5x5 grid
 function createInitialGameState() {
   return {
-    grid: Array(5).fill().map(() => Array(5).fill(null)), // 5x5 grid
-    turn: 'A', // Player A starts first
+    grid: Array(5).fill().map(() => Array(5).fill(null)), 
+    turn: 'A', 
   };
 }
 
 wss.on('connection', function connection(ws) {
-  // Assign player ID
   const playerId = Object.keys(players).length === 0 ? 'A' : 'B';
   players[playerId] = ws;
 
-  // Send initial game state to the player
   ws.send(JSON.stringify({ type: 'init', playerId, gameState }));
 
   ws.on('message', function incoming(message) {
@@ -55,19 +48,17 @@ function handlePlayerMove(playerId, data) {
   if (validMove) {
     updateGameState(character, move);
     broadcastGameState();
-    gameState.turn = gameState.turn === 'A' ? 'B' : 'A'; // Switch turn
+    gameState.turn = gameState.turn === 'A' ? 'B' : 'A';
   } else {
     players[playerId].send(JSON.stringify({ type: 'invalid', message: 'Invalid move' }));
   }
 }
 
 function validateMove(character, move) {
-  // Implement validation logic here (e.g., bounds checking, move legality)
-  return true; // For now, we'll accept any move
+  return true; 
 }
 
 function updateGameState(character, move) {
-  // Update the grid based on the move, e.g., move a character on the grid
   const [newX, newY] = move;
   gameState.grid[newX][newY] = character;
 }
@@ -79,7 +70,6 @@ function broadcastGameState() {
   }
 }
 
-// Start the server on port 8080
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
