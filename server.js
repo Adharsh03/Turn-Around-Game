@@ -4,78 +4,81 @@ const WebSocket = require('ws');
 const path = require('path');
 
 const app = express();
-
 app.use(express.static(path.join(__dirname, "index.html")));
-
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-let players = {};
-let gameState = createInitialGameState();
 
-function createInitialGameState() {
-  return {
-    grid: Array(5).fill().map(() => Array(5).fill(null)), 
-    turn: 'A', 
-  };
-}
+let gameState = {
+    A: {
+        characters: ['P1', 'P2', 'H1', 'H2', 'P3'],
+        positions: [
+            ['A-P1', 'A-P2', 'A-H1', 'A-H2', 'A-P3'],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['', '', '', '', ''],
+            ['B-P1', 'B-P2', 'B-H1', 'B-H2', 'B-P3']
+        ]
+    },
+    B: {
+        characters: ['P1', 'P2', 'H1', 'H2', 'P3']
+    },
+    turn: 'A'
+};
 
-wss.on('connection', function connection(ws) {
-  const playerId = Object.keys(players).length === 0 ? 'A' : 'B';
-  players[playerId] = ws;
+// Serve static files (index.html, style.css, script.js)
 
-  ws.send(JSON.stringify({ type: 'init', playerId, gameState }));
+// WebSocket Connection
+wss.on('connection', (ws) => {
+    console.log('Player connected');
 
-  ws.on('message', function incoming(message) {
-    const data = JSON.parse(message);
-    handlePlayerMove(playerId, data);
-  });
+    // Send initial game state to the client
+    ws.send(JSON.stringify({ type: 'init', gameState }));
 
-  ws.on('close', function () {
-    delete players[playerId];
-  });
+    // Handle incoming messages (moves)
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+        console.log('Received:', data);
+
+        if (data.type === 'move') {
+            handleMove(data.character, data.move);
+            broadcastGameState();
+        }
+    });
+
+    // Handle WebSocket disconnection
+    ws.on('close', () => {
+        console.log('Player disconnected');
+    });
 });
 
-function handlePlayerMove(playerId, data) {
-  if (playerId !== gameState.turn) {
-    players[playerId].send(JSON.stringify({ type: 'invalid', message: 'Not your turn' }));
-    return;
-  }
+// Handle move logic
+function handleMove(character, move) {
+    // Simplified movement logic
+    // Update the gameState based on character and move
+    console.log(`${character} moved ${move}`);
 
-  const { character, move } = data;
-  const validMove = validateMove(character, move);
-
-  if (validMove) {
-    updateGameState(character, move);
-    broadcastGameState();
+    // Switch turn after move
     gameState.turn = gameState.turn === 'A' ? 'B' : 'A';
-  } else {
-    players[playerId].send(JSON.stringify({ type: 'invalid', message: 'Invalid move' }));
-  }
 }
 
-function validateMove(character, move) {
-  return true; 
-}
-
-function updateGameState(character, move) {
-  const [newX, newY] = move;
-  gameState.grid[newX][newY] = character;
-}
-
+// Broadcast game state to all connected clients
 function broadcastGameState() {
-  const stateUpdate = JSON.stringify({ type: 'update', gameState });
-  for (let player in players) {
-    players[player].send(stateUpdate);
-  }
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({ type: 'update', gameState }));
+        }
+    });
 }
 
+// Start the server
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
 
 
 app.get("/", (req,res)=> {
-  res.sendFile((path.join(__dirname, "index.html")))
-})
+    res.sendFile((path.join(__dirname, "index.html")))
+  })
+  

@@ -3,168 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turn-Based Game</title>
+    <title>Turn-Based Chess Game</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+
+        body {
+            background-color: #20232a;
+            color: #61dafb;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #E0E0E0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            padding: 20px;
         }
 
         .container {
-            background-color: #1E1E1E;
+            display: flex;
+            background-color: #282c34;
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            width: 350px;
+            border-radius: 12px;
+            width: 900px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
         }
 
-        h1 {
-            font-size: 28px;
-            color: #BB86FC;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        h2 {
-            font-size: 20px;
-            margin-top: 20px;
-            color: #03DAC6;
+        .board-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         #board {
             display: grid;
             grid-template-columns: repeat(5, 60px);
             grid-template-rows: repeat(5, 60px);
-            gap: 10px;
-            margin: 20px auto;
+            gap: 5px;
         }
 
         .cell {
             width: 60px;
             height: 60px;
-            background-color: #333;
-            border: 2px solid #444;
-            font-size: 22px;
-            font-weight: bold;
-            color: #BB86FC;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: #3c4043;
+            border: 1px solid #43474b;
+            text-align: center;
+            line-height: 60px;
+            font-size: 20px;
+            color: #c7d1d4;
             cursor: pointer;
-            border-radius: 8px;
-            transition: transform 0.2s ease, background-color 0.3s ease;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
         .cell:hover {
-            background-color: #444;
-            transform: scale(1.1);
-        }
-
-        .cell:active {
-            background-color: #555;
+            background-color: #4a4a4a;
             transform: scale(1.05);
         }
 
-        #instructions-tab {
-            margin-top: 20px;
+        .cell.active {
+            background-color: #61dafb;
+            color: #20232a;
         }
 
-        #instructions-content {
-            display: none;
-            background-color: #333;
-            color: #E0E0E0;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-size: 16px;
+        .controls-container {
+            flex: 1;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .tab-button {
-            background-color: #BB86FC;
-            color: #121212;
-            padding: 10px 20px;
+        h1 {
+            color: #61dafb;
+            margin-bottom: 20px;
+        }
+
+        h2, h3 {
+            color: #abb2bf;
+            margin: 10px 0;
+        }
+
+        #move-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .move-button {
+            background-color: #3c4043;
             border: none;
-            border-radius: 8px;
+            color: #c7d1d4;
+            padding: 12px 20px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .move-button:hover {
+            background-color: #4a4a4a;
+            transform: scale(1.05);
+        }
+
+        #instructions {
+            margin-top: 20px;
+            background-color: #3c4043;
+            padding: 15px;
+            border-radius: 8px;
+            color: #abb2bf;
+            font-size: 14px;
+            text-align: left;
+            display: none; /* Hidden by default */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+
+        .instructions-header {
+            color: #61dafb;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        #toggle-instructions {
+            background-color: #3c4043;
+            border: none;
+            color: #c7d1d4;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 8px;
             font-size: 16px;
             margin-top: 10px;
+            transition: background-color 0.3s, transform 0.3s;
         }
 
-        .tab-button:hover {
-            background-color: #A55DFB;
-        }
-
-        @media (max-width: 400px) {
-            .container {
-                width: 90%;
-                padding: 20px;
-            }
-
-            #board {
-                grid-template-columns: repeat(5, 50px);
-                grid-template-rows: repeat(5, 50px);
-                gap: 8px;
-            }
-
-            .cell {
-                width: 50px;
-                height: 50px;
-                font-size: 18px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            h2 {
-                font-size: 18px;
-            }
+        #toggle-instructions:hover {
+            background-color: #4a4a4a;
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Turn-Based Game</h1>
-
-        <div id="instructions-tab">
-            <button class="tab-button" onclick="toggleInstructions()">Instructions</button>
-            <div id="instructions-content">
-                <p>Welcome to the Turn-Based Game!</p>
-                <p><strong>How to play:</strong></p>
+        <div class="board-container">
+            <div id="board"></div>
+        </div>
+        <div class="controls-container">
+            <h1>Turn-Based Chess Game</h1>
+            <h2 id="current-player">Current Player: A</h2>
+            <h3 id="selected-character">Selected:</h3>
+            <div id="move-buttons" class="move-buttons"></div>
+            <button id="toggle-instructions">Instructions</button>
+            <div id="instructions">
+                <div class="instructions-header">Instructions</div>
+                <p>Select a character by clicking on a cell. Use the move buttons to move the selected character. Moves include:</p>
                 <ul>
-                    <li>Each player takes turns selecting a cell on the grid.</li>
-                    <li>The goal is to occupy cells with your character (Player A or Player B).</li>
-                    <li>Make your move by clicking on any available cell during your turn.</li>
-                    <li>The game updates with each move, alternating between the two players.</li>
+                    <li><strong>L:</strong> Left</li>
+                    <li><strong>R:</strong> Right</li>
+                    <li><strong>F:</strong> Forward</li>
+                    <li><strong>B:</strong> Backward</li>
+                    <li><strong>FL:</strong> Forward-Left</li>
+                    <li><strong>FR:</strong> Forward-Right</li>
+                    <li><strong>BL:</strong> Backward-Left</li>
+                    <li><strong>BR:</strong> Backward-Right</li>
                 </ul>
-                <p>Good luck and have fun!</p>
+                <p>Each move is subject to the character's movement rules.</p>
             </div>
         </div>
-
-        <div id="board"></div>
-
-        <h2 id="turn"></h2>
     </div>
 
     <script>
         const boardElement = document.getElementById('board');
-        const turnElement = document.getElementById('turn');
-        const instructionsContent = document.getElementById('instructions-content');
+        const moveButtonsElement = document.getElementById('move-buttons');
+        const selectedCharacterElement = document.getElementById('selected-character');
+        const currentPlayerElement = document.getElementById('current-player');
+        const instructionsElement = document.getElementById('instructions');
+        const toggleInstructionsButton = document.getElementById('toggle-instructions');
 
-        const ws = new WebSocket('ws://' + window.location.host);
-
-        let playerId;
-        let gameState;
+        let currentPlayer = 'A';
+        let selectedCharacter = null;
+        let selectedCharacterPosition = null;
+        const gameState = {
+            A: {
+                characters: ['P1', 'P2', 'H1', 'H2', 'P3'],
+                positions: [
+                    ['A-P1', 'A-P2', 'A-H1', 'A-H2', 'A-P3'],
+                    ['', '', '', '', ''],
+                    ['', '', '', '', ''],
+                    ['', '', '', '', ''],
+                    ['B-P1', 'B-P2', 'B-H1', 'B-H2', 'B-P3']
+                ]
+            },
+            B: {
+                characters: ['P1', 'P2', 'H1', 'H2', 'P3'],
+                positions: [
+                    ['A-P1', 'A-P2', 'A-H1', 'A-H2', 'A-P3'],
+                    ['', '', '', '', ''],
+                    ['', '', '', '', ''],
+                    ['', '', '', '', ''],
+                    ['B-P1', 'B-P2', 'B-H1', 'B-H2', 'B-P3']
+                ]
+            }
+        };
 
         function initializeBoard() {
             for (let i = 0; i < 5; i++) {
@@ -172,56 +215,110 @@
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.id = `cell-${i}-${j}`;
+                    cell.textContent = gameState.A.positions[i][j] || '';
                     boardElement.appendChild(cell);
                 }
             }
         }
 
-        function renderGameState() {
-            gameState.grid.forEach((row, i) => {
-                row.forEach((cell, j) => {
+        function renderBoard() {
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 5; j++) {
                     const cellElement = document.getElementById(`cell-${i}-${j}`);
-                    cellElement.textContent = cell ? `${cell}` : '';
-                });
-            });
-
-            turnElement.textContent = `Current turn: ${gameState.turn}`;
-        }
-
-        ws.onmessage = (message) => {
-            const data = JSON.parse(message.data);
-
-            if (data.type === 'init') {
-                playerId = data.playerId;
-                gameState = data.gameState;
-                initializeBoard();
-                renderGameState();
-            } else if (data.type === 'update') {
-                gameState = data.gameState;
-                renderGameState();
-            } else if (data.type === 'invalid') {
-                alert(data.message);
+                    cellElement.textContent = gameState.A.positions[i][j] || '';
+                }
             }
-        };
+        }
 
         boardElement.addEventListener('click', (event) => {
             if (!event.target.classList.contains('cell')) return;
-            const [_, x, y] = event.target.id.split('-');
 
-            ws.send(JSON.stringify({
-                character: playerId, 
-                move: [parseInt(x), parseInt(y)] 
-            }));
+            const [_, x, y] = event.target.id.split('-');
+            const character = gameState.A.positions[x][y];
+
+            if (character && character.startsWith(currentPlayer)) {
+                selectedCharacter = character;
+                selectedCharacterPosition = { x: parseInt(x), y: parseInt(y) };
+                selectedCharacterElement.textContent = `Selected: ${character}`;
+
+                if (character.includes('P')) {
+                    renderMoveButtons(['L', 'R', 'F', 'B']);
+                } else if (character.includes('H1')) {
+                    renderMoveButtons(['L', 'R', 'F', 'B']);
+                } else if (character.includes('H2')) {
+                    renderMoveButtons(['FL', 'FR', 'BL', 'BR']);
+                }
+            }
         });
 
- 
-        function toggleInstructions() {
-            if (instructionsContent.style.display === "none" || instructionsContent.style.display === "") {
-                instructionsContent.style.display = "block";
-            } else {
-                instructionsContent.style.display = "none";
+        function renderMoveButtons(moves) {
+            moveButtonsElement.innerHTML = '';
+            moves.forEach(move => {
+                const button = document.createElement('button');
+                button.className = 'move-button';
+                button.textContent = move;
+                button.onclick = () => handleMove(move);
+                moveButtonsElement.appendChild(button);
+            });
+        }
+
+        function handleMove(move) {
+            if (!selectedCharacter || !selectedCharacterPosition) return;
+
+            let newX = selectedCharacterPosition.x;
+            let newY = selectedCharacterPosition.y;
+
+            switch (move) {
+                case 'L':
+                    newY -= 1;
+                    break;
+                case 'R':
+                    newY += 1;
+                    break;
+                case 'F':
+                    newX -= 1;
+                    break;
+                case 'B':
+                    newX += 1;
+                    break;
+                case 'FL':
+                    newX -= 1;
+                    newY -= 1;
+                    break;
+                case 'FR':
+                    newX -= 1;
+                    newY += 1;
+                    break;
+                case 'BL':
+                    newX += 1;
+                    newY -= 1;
+                    break;
+                case 'BR':
+                    newX += 1;
+                    newY += 1;
+                    break;
+            }
+
+            if (newX >= 0 && newX < 5 && newY >= 0 && newY < 5) {
+                gameState.A.positions[newX][newY] = selectedCharacter;
+                gameState.A.positions[selectedCharacterPosition.x][selectedCharacterPosition.y] = '';
+
+                currentPlayer = currentPlayer === 'A' ? 'B' : 'A';
+                currentPlayerElement.textContent = `Current Player: ${currentPlayer}`;
+
+                selectedCharacter = null;
+                selectedCharacterPosition = null;
+                selectedCharacterElement.textContent = 'Selected:';
+                moveButtonsElement.innerHTML = '';
+                renderBoard();
             }
         }
+
+        toggleInstructionsButton.addEventListener('click', () => {
+            instructionsElement.style.display = instructionsElement.style.display === 'none' ? 'block' : 'none';
+        });
+
+        initializeBoard();
     </script>
 </body>
 </html>
